@@ -1,10 +1,13 @@
-** Version 2.1:
 
-- Create changelog file
-- Migrate to github 
+
+*** Version 2.1:
+- Add documentation for ignore option
+- Increase plugin id for resolve issu with Spring module
 
 *** Version 2:
 - Introduce controller for  Generate/reset cobertura without restart your application
+- Create changelog file
+- Migrate to github 
 
 
 *** Version 1: 

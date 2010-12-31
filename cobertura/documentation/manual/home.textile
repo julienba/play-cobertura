@@ -54,4 +54,10 @@ The module will output the URL to view this report on the console. You can view 
 
 !images/cobertura1!
 
+h2. <a>Tips and tricks</a>
+
+* Ignoring classes:
+If you would to ignore some classes in generated report
+
+bc. cobertura.ignore=DocViewerPlugin,Bootstrap,OtherClassName
 
