@@ -34,6 +34,12 @@ import net.sourceforge.cobertura.coveragedata.ProjectData;
 import net.sourceforge.cobertura.instrument.ClassInstrumenter;
 import net.sourceforge.cobertura.util.FileLocker;
 
+import org.apache.oro.text.GlobCompiler;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternCompiler;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.Perl5Matcher;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
@@ -96,8 +102,7 @@ public class CoberturaPlugin extends PlayPlugin {
 	public static String separator = System.getProperty("file.separator");
 
 	// arguments to pass to Cobertura engine
-	@SuppressWarnings("unchecked")
-	static Collection ignoreRegexes = new Vector();
+	static Collection<Pattern> ignoreRegexes = new Vector<Pattern>();
 	@SuppressWarnings("unchecked")
 	static Collection ignoreBranchesRegexes = new Vector();
 	static ProjectData projectData = null;
@@ -268,7 +273,6 @@ public class CoberturaPlugin extends PlayPlugin {
 	@Override
 	public void enhance(ApplicationClass applicationClass) {
 		Logger.trace("Enhance Class on CoberturaPlugin");
-		
 		// only use this plugin if we're in test mode
 		if (!Play.id.equals("test")) {
 			return;
@@ -283,13 +287,33 @@ public class CoberturaPlugin extends PlayPlugin {
 		
 		// - don't instrument specific classes define in cobertura.ignore
 		String ignoreString = Play.configuration.getProperty("cobertura.ignore");
+		// - Don't instrument classes matching regex expression
+		String ignoreRegexString = Play.configuration.getProperty("cobertura.ignore.regex");
+		
+		
+		// Get regexes from config
+		if(ignoreRegexString != null && ignoreRegexes.isEmpty()){
+			String[] ignoreRegTab = ignoreRegexString.split(",");
+			for (String ignoreReg : ignoreRegTab) {
+				Pattern pattern = createRegexPattern(ignoreReg);
+				ignoreRegexes.add(pattern);
+			}
+		}
+		//Check for match against regex for class. If theres a match, don't instrument
+		if(checkForRegexMatch(applicationClass)){
+			return;
+		}
+		
 		if(ignoreString != null){
 			String[] ignoreTab = ignoreString.split(",");
 			for (String ignore : ignoreTab) {
-				if(applicationClass.name.equals(ignore))
+				if(applicationClass.name.equals(ignore)){
 					return;
+				}
+					
 			}
 		}
+		
 		
 
 		Logger.trace("Cobertura plugin: Instrumenting class %s", applicationClass.name);
@@ -315,6 +339,26 @@ public class CoberturaPlugin extends PlayPlugin {
 
 		// record this enhanced class as an unsaved change
 		unsavedChanges++;
+	}
+
+	private boolean checkForRegexMatch(ApplicationClass applicationClass) {
+		PatternMatcher matcher = new Perl5Matcher();
+		for(Pattern pattern : ignoreRegexes){
+			if(matcher.matches(applicationClass.name, pattern)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Pattern createRegexPattern(String input) {
+		 PatternCompiler compiler = new GlobCompiler();
+		try {
+			return compiler.compile(input);
+		} catch (MalformedPatternException e) {
+			Logger.error("Cannot interpet regex from property file"+e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
