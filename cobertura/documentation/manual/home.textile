@@ -61,3 +61,6 @@ If you would to ignore some classes in generated report
 
 bc. cobertura.ignore=DocViewerPlugin,Bootstrap,OtherClassName
 
+Or with regex:
+
+bc. cobertura.ignore.regex=*Plugin
