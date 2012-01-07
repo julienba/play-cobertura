@@ -370,7 +370,8 @@ public class CoberturaPlugin extends PlayPlugin {
 
 		// store the absolute path to the data file we want to use
 		// in a Java system property so that Cobertura uses it automatically
-		String dataFilePath = Play.applicationPath.getAbsolutePath() + separator + "cobertura.ser";
+		String dataFilePath = Play.applicationPath + separator + TEST_DIRECTORY + separator + REPORT_DIRECTORY + separator + "cobertura.ser";
+		//arguments.add(Play.applicationPath + separator + TEST_DIRECTORY + separator + REPORT_DIRECTORY);
 		System.setProperty("net.sourceforge.cobertura.datafile", dataFilePath);
 		dataFile = CoverageDataFileHandler.getDefaultDataFile();
 
