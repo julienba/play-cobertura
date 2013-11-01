@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="Cobertura" default="build" basedir=".">
-
 	<path id="project.classpath">
 		<pathelement path="${play.path}/framework/classes"/>
 		<fileset dir="${play.path}/framework/lib">
 			<include name="*.jar"/>
 		</fileset>
+        <fileset dir="${play.path}/framework">
+            <include name="*.jar"/>
+        </fileset>
 		<fileset dir="lib">
 			<include name="*.jar"/>
 		</fileset>
@@ -59,8 +61,6 @@
 		<ant antfile="build.xml" target="jar" dir="tmp/cobertura-1.9.2/" />
 
 		<copy file="tmp/cobertura-1.9.2/build/dist/eclipse/cobertura-main.jar" todir="lib/" preservelastmodified="true" />
-		<copy file="tmp/cobertura-1.9.2/lib/asm-3.0.jar" todir="lib/" preservelastmodified="true" />
-		<copy file="tmp/cobertura-1.9.2/lib/asm-tree-3.0.jar" todir="lib/" preservelastmodified="true" />
 		<copy file="tmp/cobertura-1.9.2/lib/jakarta-oro-2.0.8.jar" todir="lib/" preservelastmodified="true" />
 	</target>
 
